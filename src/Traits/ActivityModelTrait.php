@@ -17,7 +17,7 @@ trait ActivityModelTrait
     
     public function __construct( array $attributes = [] ) {
         if (debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0]['function'] === '__construct') {
-            parent::__construct();
+            parent::__construct($attributes);
         }
         $this->table = 'activity_log';
     }

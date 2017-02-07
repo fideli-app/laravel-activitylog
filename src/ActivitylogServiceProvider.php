@@ -4,9 +4,9 @@ namespace Spatie\Activitylog;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\ServiceProvider;
+use Spatie\Activitylog\Exceptions\InvalidConfiguration;
 use Spatie\Activitylog\Interfaces\ActivityModelInterface;
 use Spatie\Activitylog\Models\Activity;
-use Spatie\Activitylog\Exceptions\InvalidConfiguration;
 
 class ActivitylogServiceProvider extends ServiceProvider
 {
@@ -16,16 +16,17 @@ class ActivitylogServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__.'/../config/laravel-activitylog.php' => config_path('laravel-activitylog.php'),
+            __DIR__ . '/../config/laravel-activitylog.php' => config_path('laravel-activitylog.php'),
         ], 'config');
 
-        $this->mergeConfigFrom(__DIR__.'/../config/laravel-activitylog.php', 'laravel-activitylog');
+        $this->mergeConfigFrom(__DIR__ . '/../config/laravel-activitylog.php', 'laravel-activitylog');
 
-        if (! class_exists('CreateActivityLogTable')) {
+        if ( ! class_exists('CreateActivityLogTable') )
+        {
             $timestamp = date('Y_m_d_His', time());
 
             $this->publishes([
-                __DIR__.'/../migrations/create_activity_log_table.php.stub' => database_path("/migrations/{$timestamp}_create_activity_log_table.php"),
+                __DIR__ . '/../migrations/create_activity_log_table.php.stub' => database_path("/migrations/{$timestamp}_create_activity_log_table.php"),
             ], 'migrations');
         }
     }
@@ -46,7 +47,9 @@ class ActivitylogServiceProvider extends ServiceProvider
     {
         $activityModel = config('laravel-activitylog.activity_model') ?: Activity::class;
 
-        if (! ($activityModel implements ActivityModelInterface) ) {
+        $implements = class_implements($activityModel);
+        if ( ! in_array(ActivityModelInterface::class, $implements, TRUE) )
+        {
             throw InvalidConfiguration::modelIsNotValid($activityModel);
         }
 
